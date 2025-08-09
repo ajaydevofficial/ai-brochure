@@ -1,0 +1,37 @@
+{
+  "name": "ai-brochure",
+  "version": "1.0.0",
+  "description": "Open AI based brochure builder",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "nodemon",
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ajaydevofficial/ai-brochure.git"
+  },
+  "keywords": [
+    "open-ai",
+    "brodchure",
+    "ai",
+    "llm"
+  ],
+  "author": "Ajay Dev D",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ajaydevofficial/ai-brochure/issues"
+  },
+  "homepage": "https://github.com/ajaydevofficial/ai-brochure#readme",
+  "dependencies": {
+    "playwright": "^1.54.2"
+  },
+  "devDependencies": {
+    "@types/node": "^24.2.1",
+    "nodemon": "^3.1.10",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.2"
+  }
+}
