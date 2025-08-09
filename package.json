@@ -26,6 +26,8 @@
   },
   "homepage": "https://github.com/ajaydevofficial/ai-brochure#readme",
   "dependencies": {
+    "dotenv": "^17.2.1",
+    "openai": "^5.12.2",
     "playwright": "^1.54.2"
   },
   "devDependencies": {
