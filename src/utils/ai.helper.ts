@@ -5,10 +5,9 @@ export const getRelevantLinks = async (
   description: string,
   links: string[]
 ) => {
-  console.log("Sending Request to OpenAI");
-  const response = await OpenAI.chat.completions.create({
-    model: "gpt-4o-mini",
-    messages: [
+  const options: any = {
+    model: "gpt-4.1",
+    input: [
       {
         role: "system",
         content:
@@ -17,25 +16,77 @@ export const getRelevantLinks = async (
       {
         role: "user",
         content: `
-Here is the list of links from ${websiteURL}, with a description: ${description}  and links ${links.join(
+    Here is the list of links from ${websiteURL}, with a description: ${description}  and links ${links.join(
           ", "
         )}. 
-Now give me the top 3 links that can be added in the brochure of this website. Return only the links in the format of a JSON.
-    example: {
-      "relevant_links": [
-        "https://www.google.com",
-        "https://www.facebook.com",
-        "https://www.twitter.com"
-      ]
+    Now give me the top 3 links that can be added in the brochure of this website. Return only the links in as strict format of a JSON without any other text or indicator.
+          
+    Example of good responses?
+    {
+        "relevant_links": [
+            "https://www.google.com",
+            "https://www.facebook.com",
+            "https://www.twitter.com"
+        ]
     }
-        `,
+    
+   Example of bad responses?
+    
+    Here is your json
+     {
+        "relevant_links": [
+            "https://www.google.com",
+            "https://www.facebook.com",
+            "https://www.twitter.com"
+        ]
+    }
+
+    JSON
+    {
+        "relevant_links": [
+            "https://www.google.com",
+            "https://www.facebook.com",
+            "https://www.twitter.com"
+        ]
+    }
+
+    json
+    {
+        "relevant_links": [
+            "https://www.google.com",
+            "https://www.facebook.com",
+            "https://www.twitter.com"
+        ]
+    }
+
+    Why these are considered as bad responses?
+    - They are not in JSON format
+    - They contain extra text or indicator
+    - They cannot be directly parsed as JSON using JSON.parse()
+    `,
       },
     ],
-    response_format: { type: "json_object" },
-  });
-  const content = response.choices[0].message.content;
-  if (!content) return [];
-  return JSON.parse(content);
+  };
+  const stream = OpenAI.responses
+    .stream(options)
+    .on("response.refusal.delta", (event) => {
+      process.stdout.write(event.delta);
+    })
+    .on("response.output_text.delta", (event) => {
+      process.stdout.write(event.delta);
+    })
+    .on("response.output_text.done", () => {
+      process.stdout.write("\n");
+    })
+    //@ts-ignore
+    .on("response.error", (event) => {
+      console.error(event.error);
+    });
+
+  const response = await stream.finalResponse();
+  //@ts-ignore
+  const data = JSON.parse(response?.output?.[0]?.content[0]?.text || "{}");
+  return data;
 };
 
 export const generateBrochure = async (
@@ -44,9 +95,9 @@ export const generateBrochure = async (
   content: string
 ) => {
   console.log("Sending Request to OpenAI");
-  const response = await OpenAI.chat.completions.create({
+  const options: any = {
     model: "gpt-4.1",
-    messages: [
+    input: [
       {
         role: "system",
         content: `
@@ -72,9 +123,32 @@ export const generateBrochure = async (
             - Content should not be a website, it should be a PDF brochure.
             - Images shouldn't be added in the entire brochure.
 
-            example: {
+            What is good example of response?
+            {
               "html": "<html>...</html>"
             }
+            
+            What is bad example of response?
+            
+            Here is your json
+            {
+              "html": "<html>...</html>"
+            }
+
+            json
+            {
+              "html": "<html>...</html>"
+            }
+
+            JSON
+            {
+              "html": "<html>...</html>"
+            }
+            
+            Why this is considered as bad response?
+            - It is not in JSON format
+            - It contains extra text or indicator
+            - It cannot be directly parsed as JSON using JSON.parse()
             `,
       },
       {
@@ -87,7 +161,25 @@ export const generateBrochure = async (
           `,
       },
     ],
-    response_format: { type: "json_object" },
-  });
-  return JSON.parse(response.choices[0].message.content as string);
+  };
+  const stream = OpenAI.responses
+    .stream(options)
+    .on("response.refusal.delta", (event) => {
+      process.stdout.write(event.delta);
+    })
+    .on("response.output_text.delta", (event) => {
+      process.stdout.write(event.delta);
+    })
+    .on("response.output_text.done", () => {
+      process.stdout.write("\n");
+    })
+    //@ts-ignore
+    .on("response.error", (event) => {
+      console.error(event.error);
+    });
+
+  const response = await stream.finalResponse();
+  //@ts-ignore
+  const data = JSON.parse(response?.output?.[0]?.content[0]?.text || "{}");
+  return data;
 };

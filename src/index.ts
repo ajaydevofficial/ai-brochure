@@ -21,25 +21,22 @@ const brochureGenerator = async (url: string) => {
     })
   );
   const combinedContent = `
-  ${data?.content}
-  ${contentsFromAllLinks.join("\n")}
-  `;
+    ${data?.content}
+    ${contentsFromAllLinks.join("\n")}
+    `;
 
   const finalResponse = await generateBrochure(
     data?.meta.title || "",
     description || "",
     combinedContent
   );
-  console.log("HTML: ", finalResponse);
 
   await writeHtmlFile(finalResponse?.html || "", {
     overwrite: true,
     directory: "brochures",
     fileName: `${data?.meta.title}-${Date.now()}.html`,
   });
-
-  console.log("Finished");
 };
 
-const url = "https://www.gohighlevel.com/78476a2";
+const url = "https://www.apple.com";
 brochureGenerator(url);
