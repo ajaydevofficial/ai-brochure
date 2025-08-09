@@ -53,9 +53,7 @@ export const scrapeWebsite = async (
     const page = await browser.newPage();
     await page.goto(url);
 
-    console.log("page", await page.evaluate(() => document.title));
     const content = await getVisibleTextExcludingCode(page);
-    console.log("content", content);
 
     const data = await page.evaluate(async () => {
       // Get all links in the page
