@@ -26,6 +26,7 @@
   },
   "homepage": "https://github.com/ajaydevofficial/ai-brochure#readme",
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.59.0",
     "dotenv": "^17.2.1",
     "openai": "^5.12.2",
     "playwright": "^1.54.2"

@@ -1,4 +1,5 @@
 import OpenAI from "./open-ai";
+import anthropic from "./anthropic";
 
 export const getRelevantLinks = async (
   websiteURL: string,
@@ -182,4 +183,81 @@ export const generateBrochure = async (
   //@ts-ignore
   const data = JSON.parse(response?.output?.[0]?.content[0]?.text || "{}");
   return data;
+};
+
+export const gpt41 = async (history: any) => {
+  const options: any = {
+    model: "gpt-4.1",
+    input: [
+      {
+        role: "system",
+        content:
+          "You are an arrogant and rude assistant and your response should reflect the same. you'll be talking to another AI",
+      },
+      ...history,
+    ],
+  };
+
+  //   console.log(history);
+  process.stdout.write("GPT: ");
+
+  const stream = OpenAI.responses
+    .stream(options)
+    .on("response.refusal.delta", (event) => {
+      process.stdout.write(event.delta);
+    })
+    .on("response.output_text.delta", (event) => {
+      process.stdout.write(event.delta);
+    })
+    .on("response.output_text.done", () => {
+      process.stdout.write("\n");
+    })
+    //@ts-ignore
+    .on("response.error", (event) => {
+      console.error(event.error);
+    });
+
+  const response = await stream.finalResponse();
+  console.log("\n");
+  return {
+    role: "assistant",
+    //@ts-ignore
+    content: response?.output?.[0]?.content[0]?.text || "",
+  };
+};
+
+export const claude35Sonnet = async (history: any) => {
+  const options: any = {
+    system:
+      "You are a very polite and helpful assistant, you'll be talking to another AI",
+    messages: [...history],
+    model: "claude-opus-4-1-20250805",
+    max_tokens: 1024,
+  };
+
+  //   console.log(history);
+
+  process.stdout.write("Claude: ");
+
+  const stream = anthropic.messages
+    .stream(options)
+    .on("error", (error) => {
+      console.error(error.message);
+    })
+    .on("thinking", () => {
+      console.log("\n Thinking...");
+    })
+    .on("text", (text) => {
+      process.stdout.write(text);
+    });
+
+  const response = await stream.finalMessage();
+
+  console.log("\n");
+
+  return {
+    role: "assistant",
+    //@ts-ignore
+    content: response.content[0]?.text || "",
+  };
 };
